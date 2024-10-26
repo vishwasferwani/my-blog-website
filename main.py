@@ -165,7 +165,7 @@ def show_post(post_id):
         db.session.add(new_comment)
         db.session.commit()
         return redirect(url_for("show_post",post_id=post_id))
-    result = db.session.execute(db.select(Comment).order_by(Comment.post_id))
+    result = db.session.execute(db.select(Comment).filter(Comment.post_id == post_id).order_by(Comment.post_id))
     comments=result.scalars().all()
 
     return render_template("post.html", form=form,post=requested_post,current_user=current_user,comments=comments)
