@@ -46,7 +46,11 @@
                 <img src= " {{ comment.comment_author.avatar(128) }} "/>
               </div>
               <div class="commentText">
-                <p>{{ comment.texts }}</p>
+                <p>{{ comment.texts }}
+                  {% if current_user.id == 1: %}
+                  <a href="{{url_for('delete_comment', id=comment.id) }}">✘</a>
+                  {%endif%}
+                </p>
                 <span class="date sub-text">{{ comment.comment_author.name }}</span>
               </div>
             </li>
