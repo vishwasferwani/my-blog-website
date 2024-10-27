@@ -12,13 +12,13 @@ from hashlib import md5
 from forms import CreatePostForm,RegisterForm,LoginForm,CommentForm
 import os
 
-def admin_only(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user.id != 1:
-            return abort(403)
-        return f(*args, **kwargs)
-    return decorated_function
+# def admin_only(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if current_user.id != 1:
+#             return abort(403)
+#         return f(*args, **kwargs)
+#     return decorated_function
 
 '''
 Make sure the required packages are installed: 
@@ -168,12 +168,12 @@ def show_post(post_id):
     result = db.session.execute(db.select(Comment).filter(Comment.post_id == post_id).order_by(Comment.post_id))
     comments=result.scalars().all()
 
-    return render_template("post.html", form=form,post=requested_post,current_user=current_user,comments=comments)
+    return render_template("post.html", form=form,post=requested_post,current_user=current_user,comments=comments,author_id = BlogPost.author_id)
 
 
 # a decorator so only an admin user can create a new post
 @app.route("/new-post", methods=["GET", "POST"])
-@admin_only
+# @admin_only
 def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
@@ -193,7 +193,7 @@ def add_new_post():
 
 # a decorator so only an admin user can edit a post
 @app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
-@admin_only
+# @admin_only
 def edit_post(post_id):
     post = db.get_or_404(BlogPost, post_id)
     edit_form = CreatePostForm(
@@ -216,15 +216,16 @@ def edit_post(post_id):
 
 # a decorator so only an admin user can delete a post
 @app.route("/delete/<int:post_id>")
-@admin_only
+# @admin_only
 def delete_post(post_id):
     post_to_delete = db.get_or_404(BlogPost, post_id)
+    Comment.query.filter_by(post_id=post_id).delete()
     db.session.delete(post_to_delete)
     db.session.commit()
     return redirect(url_for('get_all_posts'))
 
 @app.route("/delete_comment/<int:id>")
-@admin_only
+# @admin_only
 def delete_comment(id):
     comment_to_delete = db.get_or_404(Comment, id)
     db.session.delete(comment_to_delete)
