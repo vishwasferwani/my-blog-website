@@ -145,7 +145,7 @@ def logout():
 def get_all_posts():
     result = db.session.execute(db.select(BlogPost).order_by(BlogPost.date))
     posts = result.scalars().all()
-    return render_template("index.html", all_posts=posts,current_user=current_user)
+    return render_template("index.html", all_posts=posts)
 
 
 # Allow logged-in users to comment on posts
@@ -175,6 +175,9 @@ def show_post(post_id):
 @app.route("/new-post", methods=["GET", "POST"])
 # @admin_only
 def add_new_post():
+    if not current_user.is_authenticated:  # Check if the user is logged in
+        flash("Login first to add a new post")
+        return redirect(url_for("login"))
     form = CreatePostForm()
     if form.validate_on_submit():
         new_post = BlogPost(
@@ -188,7 +191,7 @@ def add_new_post():
         db.session.add(new_post)
         db.session.commit()
         return redirect(url_for("get_all_posts"))
-    return render_template("make-post.html", form=form,current_user=current_user)
+    return render_template("make-post.html", form=form)
 
 
 # a decorator so only an admin user can edit a post
